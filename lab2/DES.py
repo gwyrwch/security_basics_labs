@@ -99,14 +99,40 @@ class DES:
             34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9, 49, 17, 57, 25
         ]
 
-        self.keys = []
+    @staticmethod
+    def add_zeros(data, k):
+        if len(data) <= k:
+            zeros_size = k - len(data)
+            data2 = [0 for i in range(zeros_size)] + data
+            return data2
+        elif len(data) > k:
+            raise RuntimeError('{}, {}'.format(len(data), k))
 
     def encrypt(self, data, key):
+        if type(data) != list:
+            raise RuntimeError('Not list')
+
+        data = [1] + data
+        n = len(data)
+        m = 0
+        while m < n:
+            m += 64
+        data = self.add_zeros(data, m)
+        res = []
+        for i in range(0, m, 64):
+            res += self.encrypt_64(data[i:i+64], key)
+        return res
+
+    def encrypt_64(self, data, key):
         """
         :param data: 64 bit binary string // in a list??
         :param key: 56 bit key
         :return: encrypted 64 bit string
         """
+
+        data = self.add_zeros(data, 64)
+        key = self.add_zeros(key, 56)
+
         data_IP = [0 for i in range(64)]
 
         for i in range(64):
@@ -117,7 +143,6 @@ class DES:
 
         for i in range(16):
             k_i = self.generate_k48(key, i)
-            self.keys.append(k_i)
             l_i, r_i = self.feistel_transform(l_i, r_i, k_i)
 
         data_IP = l_i + r_i
@@ -191,12 +216,29 @@ class DES:
 
         return ans
 
-    def decrypt(self, data):
+    def decrypt(self, data, key):
+        if type(data) != list:
+            raise RuntimeError('Not a list')
+        if len(data) % 64:
+            raise RuntimeError('Wrong size')
+        n = len(data)
+        res = []
+        for i in range(0, n, 64):
+            res += self.decrypt_64(data[i:i+64], key)
+        while res[0] != 1:
+            res = res[1:]
+        return res[1:]
+
+
+    def decrypt_64(self, data, key):
         """
         :param data: 64 bit binary string // in a list??
         :param key: 56 bit key
         :return: encrypted 64 bit string
         """
+        data = self.add_zeros(data, 64)
+        key = self.add_zeros(key, 56)
+
         data_IP = [0 for i in range(64)]
 
         for i in range(64):
@@ -205,8 +247,13 @@ class DES:
         l_i = data_IP[:32]
         r_i = data_IP[32:]
 
+        keys = []
+        for i in range(16):
+            k_i = self.generate_k48(key, i)
+            keys.append(k_i)
+
         for i in reversed(range(16)):
-            l_i, r_i = self.feistel_transform_dec(l_i, r_i, self.keys[i])
+            l_i, r_i = self.feistel_transform_dec(l_i, r_i, keys[i])
 
         data_IP = l_i + r_i
         ans = [0 for i in range(64)]
@@ -228,17 +275,17 @@ class DES:
 
 if __name__ == '__main__':
     des = DES()
-    data__ = [
-        1, 0, 1, 0, 1, 0, 0, 1,
-        0, 1, 0, 1, 0, 1, 0, 0,
-        1, 0, 1, 0, 1, 0, 1, 0,
-        1, 0, 0, 1, 1, 1, 0, 1,
-        0, 1, 1, 0, 0, 1, 0, 1,
-        0, 1, 1, 0, 1, 1, 1, 0,
-        0, 0, 1, 0, 1, 0, 0, 1,
-        0, 1, 0, 1, 0, 0, 0, 1
-    ]
-    print(data__)
+    # data__ = [
+    #     1, 0, 1, 0, 1, 0, 0, 1,
+    #     0, 1, 0, 1, 0, 1, 0, 0,
+    #     1, 0, 1, 0, 1, 0, 1, 0,
+    #     1, 0, 0, 1, 1, 1, 0, 1,
+    #     0, 1, 1, 0, 0, 1, 0, 1,
+    #     0, 1, 1, 0, 1, 1, 1, 0,
+    #     0, 0, 1, 0, 1, 0, 0, 1,
+    #     0, 1, 0, 1, 0, 0, 0, 1
+    # ]
+    data__ = [1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 
     key__ = [
         1, 0, 1, 0, 1, 0, 0, 0,
@@ -261,10 +308,12 @@ if __name__ == '__main__':
     # ]
 
     # print(list("1010100101010100101010101001110101100101011011100010100101010001"))
+    # print(data__)
+    print(data__)
     kek = des.encrypt(data__, key__)
     # print(kek)
 
-    kek2 = des.decrypt(kek)
+    kek2 = des.decrypt(kek, key__)
     print(kek2)
     # print(des.S[2][3 * 16 + 7])
 

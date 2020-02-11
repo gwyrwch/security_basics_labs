@@ -1,2 +1,6 @@
 lab2/venv/
 lab2/.idea/
+.DS_Store
+.gitignore.swp
+lab2/__pycache__/
+lab2/password_hashes.json
