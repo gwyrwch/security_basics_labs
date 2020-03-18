@@ -30,3 +30,4 @@ def bin_list_to_string(lst):
 
 def json_to_bin_list(j):
     return string_to_bin_list(json.dumps(j))
+

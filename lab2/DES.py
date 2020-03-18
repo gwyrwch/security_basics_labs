@@ -125,9 +125,9 @@ class DES:
 
     def encrypt_64(self, data, key):
         """
-        :param data: 64 bit binary string // in a list??
+        :param data: 64 bit binary list //
         :param key: 56 bit key
-        :return: encrypted 64 bit string
+        :return: encrypted 64 bit list
         """
 
         data = self.add_zeros(data, 64)

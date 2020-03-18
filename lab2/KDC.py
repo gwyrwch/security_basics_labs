@@ -13,7 +13,7 @@ SERVER_KEY = 'DCLM38S'
 
 
 class ASServer:
-    def __init__(self):
+    def __init__(self, show_bin=False):
         # for TCP empty constructor or socket family = socket.AF_INET and socket type = socket.SOCK_DGRAM
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.s.bind((config.IP, config.AS_PORT))
@@ -22,6 +22,7 @@ class ASServer:
 
         self.all_uid_and_hashes = dict()
         self.session_bin_key = ''
+        self.show_bin = show_bin
         with open('password_hashes.json', 'r') as f:
             self.all_uid_and_hashes = json.load(f)
 
@@ -31,7 +32,7 @@ class ASServer:
             data = dict()
             if json_data and address:
                 data = json.loads(json_data.decode('utf-8'))
-                print(address, data)
+                # print(address, data)
             else:
                 continue
             if data['query'] == 'first_time_package':
@@ -51,6 +52,12 @@ class ASServer:
 
                 try:
                     dec_ts = int(config.bin_list_to_string(self.des.decrypt(enc_ts, uid_key)))
+                    if self.show_bin:
+                        print("GET " + "['query': 'first_time_package', "
+                              "'ts': {}, 'uid': {}, 'attempt': {}]".format(enc_ts, uid, attempt))
+                    else:
+                        print("GET " + "['query': 'first_time_package', "
+                                       "'ts': {}, 'uid': {}, 'attempt': {}]".format(dec_ts, uid, attempt))
                 except RuntimeError:
                     ans_package = {
                         'query': 'hacking_attempt',
@@ -104,11 +111,35 @@ class ASServer:
                     'first_time_json_enc': enc_ans,
                     'tgt_json_enc': enc_tgt
                 }
+
+                if self.show_bin:
+                    print("SEND session_key " +
+                          "['session_key': {},"
+                          "'ts': {},"
+                          "'exp_ts': {},"
+                          "'TGS_addr': {}]\n".format(self.session_bin_key, ts, exp_ts, (config.IP, config.TGS_PORT)) +
+                          "SEND TGT "
+                          "['uid': {},"
+                          "'ts': {},"
+                          "'session_key': {},"
+                          "'exp_ts': {}]".format(uid, ts, session_key, exp_ts))
+                else:
+                    print("SEND session_key " +
+                          "['session_key': {},"
+                          "'ts': {},"
+                          "'exp_ts': {},"
+                          "'TGS_addr': {}]\n".format(session_key, ts, exp_ts, [config.IP, config.TGS_PORT]) +
+                          "SEND TGT " +
+                          "['uid': {},"
+                          "'ts': {},"
+                          "'session_key': {},"
+                          "'exp_ts': {}]".format(uid, ts, session_key, exp_ts))
+
                 self.s.sendto(str.encode(json.dumps(ans_package)), address)
 
 
 class TGSServer:
-    def __init__(self):
+    def __init__(self, show_bin=False):
         # for TCP empty constructor or socket family = socket.AF_INET and socket type = socket.SOCK_DGRAM
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.s.bind((config.IP, config.TGS_PORT))
@@ -116,6 +147,7 @@ class TGSServer:
         self.addresses = set()
         self.groups = {'all': []}
         self.user_times = dict()
+        self.show_bin = show_bin
 
         self.des = DES()
 
@@ -125,7 +157,7 @@ class TGSServer:
             data = dict()
             if json_data and address:
                 data = json.loads(json_data.decode('utf-8'))
-                print(address, data)
+                # print(address, data)
             else:
                 continue
             if data['query'] == 'tgs_request':
@@ -135,6 +167,7 @@ class TGSServer:
                         config.string_to_bin_list(TGS_KEY)
                     )
                 ))
+
                 session_key = tgt_data['session_key']
                 user_data = json.loads(config.bin_list_to_string(
                     self.des.decrypt(
@@ -142,12 +175,32 @@ class TGSServer:
                         session_key
                     )
                 ))
+                if self.show_bin:
+                    print("GET TGT " +
+                          "['uid': {},"
+                          "'ts': {},"
+                          "'session_key': {},"
+                          "'exp_ts': {}]".format(tgt_data['uid'], tgt_data['ts'], session_key, tgt_data['exp_ts']))
+                else:
+                    print(
+                        "GET TGT " +
+                        "['uid': {},"
+                        "'ts': {},"
+                        "'session_key': {},"
+                        "'exp_ts': {}]".format(
+                            tgt_data['uid'],
+                            tgt_data['ts'],
+                            config.bin_list_to_string(session_key),
+                            tgt_data['exp_ts']
+                        )
+                    )
 
                 if tgt_data['uid'] != user_data['uid']:
                     raise RuntimeError("uid of the tgt package and user package don't match")
 
+                key = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
                 app_session_key = config.string_to_bin_list(
-                    ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+                    key
                 )
 
                 app_ans = {
@@ -163,6 +216,34 @@ class TGSServer:
                     'exp_ts': tgt_data['exp_ts'],
                     'app_session_key': app_session_key
                 }
+
+                if self.show_bin:
+                    print("SEND "
+                          "['uid': {},"
+                          "'address': {},"
+                          "'ts': {},"
+                          "'exp_ts': {}, "
+                          "app_session_key]\n".format(
+                              user_data['uid'], address, tgt_data['ts'], tgt_data['exp_ts'], app_session_key
+                          ) +
+                          "SEND  "
+                          "['dest': APP1,"
+                          "'ts': {},"
+                          "'exp_ts': {}"
+                          "'app_session_key': {}]".format(tgt_data['ts'], tgt_data['exp_ts'], app_session_key))
+                else:
+                    print("SEND "
+                          "['uid': {},"
+                          "'address': {},"
+                          "'ts': {},"
+                          "'exp_ts': {}, "
+                          "app_session_key]\n".format(
+                              user_data['uid'], address, tgt_data['ts'], tgt_data['exp_ts'], key) +
+                          "SEND  "
+                          "['dest': APP1,"
+                          "'ts': {},"
+                          "'exp_ts': {}, "
+                          "'app_session_key': {}]".format(tgt_data['ts'], tgt_data['exp_ts'], key))
 
                 ans = {
                     'query': 'tgt_response',

@@ -7,7 +7,7 @@ import hashlib
 
 
 class Client:
-    def __init__(self):
+    def __init__(self, show_bin=False):
         self.s = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.des = DES()
 
@@ -24,8 +24,10 @@ class Client:
         self.app_session_key = None
         self.TGT_package = None
         self.app_package = None
+        self.show_bin = show_bin
 
-        ts = config.string_to_bin_list(str(int(time.time())))
+        cur_time = str(int(time.time()))
+        ts = config.string_to_bin_list(cur_time)
 
         package = {
             'query': 'first_time_package',
@@ -33,13 +35,26 @@ class Client:
             'uid': self.name,
             'attempt': 1
         }
+
+        if show_bin:
+            print(
+                "SEND ['query': 'first_time_package',"
+                "'ts': {},"
+                "'uid':{},"
+                "'attempt': 1]".format(self.des.encrypt(ts, self.bin_key), self.name)
+            )
+        else:
+            print(
+                "SEND ['query': 'first_time_package', 'ts': {}, 'uid': {}, 'attempt': 1]".format(cur_time, self.name)
+            )
+
         self.s.sendto(str.encode(json.dumps(package)), (config.IP, config.AS_PORT))
 
     def get_msg(self):
         while True:
             msg, address = self.s.recvfrom(config.buffer_size)
             data = json.loads(msg.decode('utf-8'))
-            print(data)
+            # print(data)
 
             if data['query'] == 'first_time_and_tgt_package':
                 enc_ans = data['first_time_json_enc']
@@ -50,11 +65,21 @@ class Client:
                 tgs_address = ans['TGS_addr']
 
                 self.TGT_package = data['tgt_json_enc']
+                if self.show_bin:
+                    print("GET session key {} and save TGT package".format(self.session_bin_key))
+                else:
+                    print("GET session key {} and save TGT package".format(
+                        config.bin_list_to_string(self.session_bin_key))
+                    )
 
                 my_package = {
                     'uid': self.name,
                     'ts': ans['ts']
                 }
+
+                print(
+                    "SEND ['uid': {}, 'ts': {}]".format(self.name, ans['ts']) + " and TGT package"
+                )
                 enc_my_package = self.des.encrypt(config.json_to_bin_list(my_package), self.session_bin_key)
 
                 full_package = {
@@ -68,6 +93,8 @@ class Client:
                 self.app_session_key = user_package['app_session_key']
                 self.app_package = data['app_package']
 
+                print("GET app_session_key and save app_package")
+
                 package_to_app = {
                     'query': 'user_request',
                     'user_package': self.des.encrypt(config.json_to_bin_list({
@@ -77,13 +104,16 @@ class Client:
                     'app_package': self.app_package
                 }
 
+                print("SEND app_package and ['uid': {}, 'ts': {}]".format(self.name, user_package['ts']))
+
                 self.s.sendto(str.encode(json.dumps(package_to_app)), (config.IP, config.SERVER_PORT))
             elif data['query'] == 'app_response':
                 app_response = json.loads(config.bin_list_to_string(self.des.decrypt(data['app_response'], self.app_session_key)))
-                print(app_response['name'], app_response['ts'])
+                print("GET response from app with name {}".format("APP1"))
+                # print(app_response['name'], app_response['ts'])
                 exit(0)
             elif data['query'] == 'hacking_attempt':
-                print(data['msg'])
+                # print(data['msg'])
                 if data['attempt'] == 3:
                     print('it was last attempt')
                     exit(0)

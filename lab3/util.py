@@ -141,6 +141,7 @@ def parse_tcp_ip_message(msg):
     rst = tcp_msg[3 * 32 + 13]
     syn = tcp_msg[3 * 32 + 14]
     fin = tcp_msg[3 * 32 + 15]
+    data = tcp_msg[-32:]
 
     tcp_checksum = tcp_msg[4 * 32:4 * 32 + 16]
     if not valid_checksum(tcp_msg, tcp_checksum, 4 * 32, 4 * 32 + 16):
@@ -158,5 +159,6 @@ def parse_tcp_ip_message(msg):
         'port_to': port_to,
         'sequence_number': sequence_number,
         'acknowlegment_number': acknowlegment_number,
-        'urg': urg, 'ack': ack, 'psh': psh, 'rst': rst, 'syn': syn, 'fin': fin
+        'urg': urg, 'ack': ack, 'psh': psh, 'rst': rst, 'syn': syn, 'fin': fin,
+        'data': data
     }

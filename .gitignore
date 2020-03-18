@@ -4,3 +4,6 @@ lab2/.idea/
 .gitignore.swp
 lab2/__pycache__/
 lab2/password_hashes.json
+lab3/__pycache__/
+.idea/
+venv/
