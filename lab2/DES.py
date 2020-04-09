@@ -229,7 +229,6 @@ class DES:
             res = res[1:]
         return res[1:]
 
-
     def decrypt_64(self, data, key):
         """
         :param data: 64 bit binary string // in a list??

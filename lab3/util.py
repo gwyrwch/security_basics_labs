@@ -134,7 +134,7 @@ def parse_tcp_ip_message(msg):
     port_from = int(tcp_msg[0:16], 2)
     port_to = int(tcp_msg[16:32], 2)
     sequence_number = tcp_msg[32:64]
-    acknowlegment_number = tcp_msg[64:3 * 32]
+    acknowledgment_number = tcp_msg[64:3 * 32]
     urg = tcp_msg[3 * 32 + 10]
     ack = tcp_msg[3 * 32 + 11]
     psh = tcp_msg[3 * 32 + 12]
@@ -158,7 +158,7 @@ def parse_tcp_ip_message(msg):
         'port_from': port_from,
         'port_to': port_to,
         'sequence_number': sequence_number,
-        'acknowlegment_number': acknowlegment_number,
+        'acknowledgment_number': acknowledgment_number,
         'urg': urg, 'ack': ack, 'psh': psh, 'rst': rst, 'syn': syn, 'fin': fin,
         'data': data
     }

@@ -53,11 +53,11 @@ class ASServer:
                 try:
                     dec_ts = int(config.bin_list_to_string(self.des.decrypt(enc_ts, uid_key)))
                     if self.show_bin:
-                        print("GET " + "['query': 'first_time_package', "
+                        print("AS GETS " + "['query': 'first_time_package', "
                               "'ts': {}, 'uid': {}, 'attempt': {}]".format(enc_ts, uid, attempt))
                     else:
-                        print("GET " + "['query': 'first_time_package', "
-                                       "'ts': {}, 'uid': {}, 'attempt': {}]".format(dec_ts, uid, attempt))
+                        print("AS GETS " + "['query': 'first_time_package', "
+                                           "'ts': {}, 'uid': {}, 'attempt': {}]".format(dec_ts, uid, attempt))
                 except RuntimeError:
                     ans_package = {
                         'query': 'hacking_attempt',
@@ -113,7 +113,7 @@ class ASServer:
                 }
 
                 if self.show_bin:
-                    print("SEND session_key " +
+                    print("AS SENDS session_key " +
                           "['session_key': {},"
                           "'ts': {},"
                           "'exp_ts': {},"
@@ -124,7 +124,7 @@ class ASServer:
                           "'session_key': {},"
                           "'exp_ts': {}]".format(uid, ts, session_key, exp_ts))
                 else:
-                    print("SEND session_key " +
+                    print("AS SENDS session_key " +
                           "['session_key': {},"
                           "'ts': {},"
                           "'exp_ts': {},"
@@ -176,14 +176,14 @@ class TGSServer:
                     )
                 ))
                 if self.show_bin:
-                    print("GET TGT " +
+                    print("TGS GETS TGT " +
                           "['uid': {},"
                           "'ts': {},"
                           "'session_key': {},"
                           "'exp_ts': {}]".format(tgt_data['uid'], tgt_data['ts'], session_key, tgt_data['exp_ts']))
                 else:
                     print(
-                        "GET TGT " +
+                        "TGS GETS TGT " +
                         "['uid': {},"
                         "'ts': {},"
                         "'session_key': {},"
@@ -218,7 +218,7 @@ class TGSServer:
                 }
 
                 if self.show_bin:
-                    print("SEND "
+                    print("TGS SEND "
                           "['uid': {},"
                           "'address': {},"
                           "'ts': {},"
@@ -226,20 +226,20 @@ class TGSServer:
                           "app_session_key]\n".format(
                               user_data['uid'], address, tgt_data['ts'], tgt_data['exp_ts'], app_session_key
                           ) +
-                          "SEND  "
+                          "TGS SEND  "
                           "['dest': APP1,"
                           "'ts': {},"
                           "'exp_ts': {}"
                           "'app_session_key': {}]".format(tgt_data['ts'], tgt_data['exp_ts'], app_session_key))
                 else:
-                    print("SEND "
+                    print("TGS SEND "
                           "['uid': {},"
                           "'address': {},"
                           "'ts': {},"
                           "'exp_ts': {}, "
                           "app_session_key]\n".format(
                               user_data['uid'], address, tgt_data['ts'], tgt_data['exp_ts'], key) +
-                          "SEND  "
+                          "TGS SEND  "
                           "['dest': APP1,"
                           "'ts': {},"
                           "'exp_ts': {}, "
