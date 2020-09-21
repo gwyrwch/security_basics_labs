@@ -265,7 +265,8 @@ class STB:
 
         return res[r:] + res[:r]
 
-    def reorder_internal(self, data):
+    @staticmethod
+    def reorder_internal(data):
         if len(data) != 32:
             raise RuntimeError
         res = [0]*32
@@ -286,3 +287,58 @@ class STB:
         if len(val) != 32:
             raise RuntimeError
         print(hex(self.to_int(self.reorder_internal(val))))
+
+    def encrypt_in_chaining_mode(self, data, key, s):
+        if type(data) != list:
+            raise RuntimeError('Not list')
+
+        key = self.add_zeros(key, 256)
+
+        data = [1] + data
+        n = len(data)
+        m = 0
+        while m < n:
+            m += 128
+        data = self.add_zeros(data, m)
+        y0 = self.encrypt_128(s, key)
+        y = [y0]
+
+        for i in range(0, m, 128):
+            x_i = data[i:i+128]
+            xy = [0 for _ in range(128)]
+            for j in range(128):
+                xy[j] = x_i[j] ^ y[i][j]
+            y.append(self.encrypt_128(xy, key))
+
+        y = y[1:]
+        res = []
+        for l in y:
+            res += l
+        return res
+
+    def decrypt_from_chaining_mode(self, data, key, s):
+        if type(data) != list:
+            raise RuntimeError('Not a list')
+        if len(data) % 128:
+            raise RuntimeError('Wrong size')
+        if type(data) != list:
+            raise RuntimeError('Not list')
+
+        n = len(data)
+        key = self.add_zeros(key, 256)
+
+        x0 = self.encrypt_128(s, key)
+        x = [x0]
+        res = []
+        for i in range(0, n, 128):
+            dec_x_i = self.decrypt_128(data[i:i + 128], key)
+            x.append(dec_x_i)
+            xx = [0 for _ in range(128)]
+            for j in range(128):
+                xx[j] = dec_x_i[j] ^ x[i][j]
+            res += xx
+
+        while res[0] != 1:
+            res = res[1:]
+        return res[1:]
+

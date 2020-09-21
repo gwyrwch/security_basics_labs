@@ -24,12 +24,22 @@ if __name__ == '__main__':
     key = 'E9DEE72C8F0C0FA62DDB49F46F73964706075316ED247A3739CBA38303A98BF6'
     key = stb.reorder(stb.to_list(int(key, 16)))
 
+    print('Simple replace mode')
+    enc = stb.encrypt(string_to_bin_list(data), string_to_bin_list(KEY))
+    print(enc)
+    dec = stb.decrypt(enc, string_to_bin_list(KEY))
+    print(dec)
+    print(bin_list_to_string(dec))
 
-    # enc = stb.encrypt(string_to_bin_list(data), string_to_bin_list(KEY))
-    # print(enc)
-    # dec = stb.decrypt(enc, string_to_bin_list(KEY))
-    # print(dec)
-    # print(bin_list_to_string(dec))
+    print('Encryption in block chaining mode')
+    s = 'A12D1AC90908F53B366D098E584A5DE4'
+    s = stb.reorder(stb.to_list(int(s, 16)))
 
-    enc = stb.encrypt_128(x, key)
-    dec = stb.decrypt_128(enc, key)
+    enc = stb.encrypt_in_chaining_mode(string_to_bin_list(data), string_to_bin_list(KEY), s)
+    print(enc)
+    dec = stb.decrypt_from_chaining_mode(enc, string_to_bin_list(KEY), s)
+    print(dec)
+    print(bin_list_to_string(dec))
+
+# enc = stb.encrypt_128(x, key)
+    # dec = stb.decrypt_128(enc, key)
