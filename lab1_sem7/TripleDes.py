@@ -46,7 +46,7 @@ class TripleDes:
             )
             print(
                 'Decoded data with KEY1 after encoding with KEY2 ' +
-                COLOR.HEADER +
+                COLOR.OKBLUE +
                 '{}'.format(bin_list_to_string(dec1_2)) +
                 COLOR.ENDC
             )

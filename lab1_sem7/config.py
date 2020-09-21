@@ -8,7 +8,7 @@ def string_to_bin_list(st):
 def bin_list_to_string(lst):
     if len(lst) % 8:
         zeros = [0 for i in range(8 - len(lst) % 8)]
-        print('---')
+        # print('---')
         lst = zeros + lst
         # raise RuntimeError(str(lst))
     res = ''

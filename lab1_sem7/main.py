@@ -1,7 +1,7 @@
 from DoubleDes import DoubleDes
 from TripleDes import TripleDes
 from GOST import GOST
-from config import string_to_bin_list, bin_list_to_string
+from config import string_to_bin_list, bin_list_to_string, COLOR
 
 
 def read_from_file(fname):
@@ -11,37 +11,27 @@ def read_from_file(fname):
 
 if __name__ == '__main__':
     data = read_from_file('input.txt')
-    KEY = '12345678'
-    KEY2 = 'KILLALL'
+    KEY = '1234567'
+    KEY2 = 'KILLAL'
+    print(COLOR.FAIL + 'DOUBLE DES' + COLOR.ENDC)
+    double_des = DoubleDes(KEY, KEY2)
+    double_des.encrypt_and_decrypt(data, True)
 
-    # double_des = DoubleDes(KEY, KEY2)
-    # double_des.encrypt_and_decrypt(data, True)
+    print('\n' + COLOR.FAIL + 'TRIPLE DES' + COLOR.ENDC)
+    triple_des = TripleDes(KEY, KEY2)
+    triple_des.encrypt_and_decrypt(data, True)
 
-    # triple_des = TripleDes(KEY, KEY2)
-    # triple_des.encrypt_and_decrypt(data, True)
-    # x = []
-    # keys = [1,2,3,4,5,6,7,8]
-    # for i in range(8):
-    #     x.append(keys[i])
-
-    # for i in range(24):
-    #     x.append(keys[(7 - i) % 8])
-    # print(x)
-
-    KEY = 'FKJFLKEJF1234563FEFNWNKLQL135676'
+    print('\n' + COLOR.FAIL + 'GOST' + COLOR.ENDC)
+    KEY3 = 'FKJFLKEJF1234563FEFNWNKLQL135676'
     gost = GOST()
-    print(data)
 
-    # datalist = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    #  0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1]
-    # enc = gost.encrypt_64(datalist, gost.get_8_keys(gost.add_zeros(string_to_bin_list(KEY), 256)))
-    # print(gost.decrypt_64(enc, gost.get_8_keys(gost.add_zeros(string_to_bin_list(KEY), 256))))
+    enc = gost.encrypt(string_to_bin_list(data), string_to_bin_list(KEY3))
 
-    enc = gost.encrypt(string_to_bin_list(data), string_to_bin_list(KEY))
-    dec = gost.decrypt(enc, string_to_bin_list(KEY))
-    print(bin_list_to_string(dec))
-    #
-    print(len(enc), len(string_to_bin_list(data)), len(dec))
+    dec = gost.decrypt(enc, string_to_bin_list(KEY3))
+    print('KEY: ' + COLOR.OKBLUE + KEY3 + COLOR.ENDC)
+    print('Text: ' + COLOR.HEADER + data + COLOR.ENDC)
+    print('Encoded string: ' + COLOR.HEADER + bin_list_to_string(enc) + COLOR.ENDC)
+    print(COLOR.ENDC + 'Decoded string: ' + COLOR.HEADER + bin_list_to_string(dec) + COLOR.ENDC)
 
 
 

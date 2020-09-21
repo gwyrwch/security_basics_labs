@@ -31,7 +31,7 @@ class DoubleDes:
             print('Decoded data with KEY2 ' + COLOR.HEADER + '{}'.format(bin_list_to_string(dec1)) + COLOR.ENDC)
             print(
                 'Decoded data with KEY1 after decoding with KEY2 ' +
-                COLOR.HEADER +
+                COLOR.OKBLUE +
                 '{}'.format(bin_list_to_string(dec2)) +
                 COLOR.ENDC
             )
