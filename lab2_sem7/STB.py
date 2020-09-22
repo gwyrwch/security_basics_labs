@@ -398,3 +398,63 @@ class STB:
         while res[0] != 1:
             res = res[1:]
         return res[1:]
+
+    def encrypt_in_counter_mode(self, data, key, s):
+        if type(data) != list:
+            raise RuntimeError('Not list')
+
+        key = self.add_zeros(key, 256)
+
+        data = [1] + data
+        n = len(data)
+        m = 0
+        while m < n:
+            m += 128
+        data = self.add_zeros(data, m)
+
+        s = self.encrypt_128(s, key)
+
+        res = []
+        for i in range(0, n, 128):
+            x_i = data[i:i + 128]
+
+            s = self.to_list((self.to_int(s) + 1) % (2 ** 128))
+            fs = self.encrypt(s, key)[:128]
+
+            xlx = [0 for _ in range(128)]
+            for j in range(128):
+                xlx[j] = x_i[j] ^ fs[j]
+
+            res += xlx
+
+        return res
+
+    def decrypt_from_counter_mode(self, data, key, s):
+        if type(data) != list:
+            raise RuntimeError('Not a list')
+        if len(data) % 128:
+            raise RuntimeError('Wrong size')
+        if type(data) != list:
+            raise RuntimeError('Not list')
+
+        n = len(data)
+        key = self.add_zeros(key, 256)
+
+        s = self.encrypt_128(s, key)
+
+        res = []
+        for i in range(0, n, 128):
+            x_i = data[i:i + 128]
+
+            s = self.to_list((self.to_int(s) + 1) % (2 ** 128))
+            fs = self.encrypt(s, key)[:128]
+
+            xlx = [0 for _ in range(128)]
+            for j in range(128):
+                xlx[j] = x_i[j] ^ fs[j]
+
+            res += xlx
+
+        while res[0] != 1:
+            res = res[1:]
+        return res[1:]

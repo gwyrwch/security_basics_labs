@@ -48,5 +48,12 @@ if __name__ == '__main__':
     print(dec)
     print(bin_list_to_string(dec))
 
+    print('Encryption in counter mode')
+    enc = stb.encrypt_in_counter_mode(string_to_bin_list(data), string_to_bin_list(KEY), s)
+    print(enc)
+    dec = stb.decrypt_from_counter_mode(enc, string_to_bin_list(KEY), s)
+    print(dec)
+    print(bin_list_to_string(dec))
+
 # enc = stb.encrypt_128(x, key)
     # dec = stb.decrypt_128(enc, key)
