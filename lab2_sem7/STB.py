@@ -342,3 +342,59 @@ class STB:
             res = res[1:]
         return res[1:]
 
+    def encrypt_in_gamma_mode(self, data, key, s):
+        if type(data) != list:
+            raise RuntimeError('Not list')
+
+        key = self.add_zeros(key, 256)
+
+        data = [1] + data
+        n = len(data)
+        m = 0
+        while m < n:
+            m += 128
+        data = self.add_zeros(data, m)
+        y0 = s
+        y = [y0]
+
+        for i in range(0, m, 128):
+            x_i = data[i:i+128]
+            ly = self.encrypt(y[i], key)[:128]
+            xly = [0 for _ in range(128)]
+            for j in range(128):
+                xly[j] = x_i[j] ^ ly[j]
+            y.append(xly)
+
+        y = y[1:]
+        res = []
+        for l in y:
+            res += l
+        return res
+
+    def decrypt_from_gamma_mode(self, data, key, s):
+        if type(data) != list:
+            raise RuntimeError('Not a list')
+        if len(data) % 128:
+            raise RuntimeError('Wrong size')
+        if type(data) != list:
+            raise RuntimeError('Not list')
+
+        n = len(data)
+        key = self.add_zeros(key, 256)
+
+        x0 = s
+        x = [x0]
+        res = []
+        for i in range(0, n, 128):
+            x_i = data[i:i + 128]
+
+            xlx = [0 for _ in range(128)]
+            xl = self.encrypt(x[i], key)[:128]
+            for j in range(128):
+                xlx[j] = x_i[j] ^ xl[j]
+            x.append(x_i)
+            res += xlx
+
+        while res[0] != 1:
+            res = res[1:]
+        return res[1:]
