@@ -300,15 +300,18 @@ class STB:
         while m < n:
             m += 128
         data = self.add_zeros(data, m)
+
         y0 = self.encrypt_128(s, key)
         y = [y0]
+        k = 0
 
         for i in range(0, m, 128):
             x_i = data[i:i+128]
             xy = [0 for _ in range(128)]
             for j in range(128):
-                xy[j] = x_i[j] ^ y[i][j]
+                xy[j] = x_i[j] ^ y[k][j]
             y.append(self.encrypt_128(xy, key))
+            k += 1
 
         y = y[1:]
         res = []
@@ -330,13 +333,15 @@ class STB:
         x0 = self.encrypt_128(s, key)
         x = [x0]
         res = []
+        k = 0
         for i in range(0, n, 128):
             dec_x_i = self.decrypt_128(data[i:i + 128], key)
-            x.append(dec_x_i)
             xx = [0 for _ in range(128)]
             for j in range(128):
-                xx[j] = dec_x_i[j] ^ x[i][j]
+                xx[j] = dec_x_i[j] ^ x[k][j]
             res += xx
+            x.append(data[i:i + 128])
+            k += 1
 
         while res[0] != 1:
             res = res[1:]
@@ -356,14 +361,16 @@ class STB:
         data = self.add_zeros(data, m)
         y0 = s
         y = [y0]
+        k = 0
 
         for i in range(0, m, 128):
             x_i = data[i:i+128]
-            ly = self.encrypt(y[i], key)[:128]
+            ly = self.encrypt(y[k], key)[:128]
             xly = [0 for _ in range(128)]
             for j in range(128):
                 xly[j] = x_i[j] ^ ly[j]
             y.append(xly)
+            k += 1
 
         y = y[1:]
         res = []
@@ -385,15 +392,17 @@ class STB:
         x0 = s
         x = [x0]
         res = []
+        k = 0
         for i in range(0, n, 128):
             x_i = data[i:i + 128]
 
             xlx = [0 for _ in range(128)]
-            xl = self.encrypt(x[i], key)[:128]
+            xl = self.encrypt(x[k], key)[:128]
             for j in range(128):
                 xlx[j] = x_i[j] ^ xl[j]
             x.append(x_i)
             res += xlx
+            k += 1
 
         while res[0] != 1:
             res = res[1:]
