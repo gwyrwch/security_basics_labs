@@ -32,7 +32,7 @@ if __name__ == '__main__':
     enc = stb.encrypt_in_chaining_mode(string_to_bin_list(data), string_to_bin_list(KEY), s)
     print('ENCRYPTED: ' + COLOR.BOLD + bin_list_to_string(enc) + COLOR.ENDC)
     dec = stb.decrypt_from_chaining_mode(enc, string_to_bin_list(KEY), s)
-    print('DECRYPTED: ' + COLOR.BOLD + bin_list_to_string(dec) + COLOR.ENDC)
+    print(COLOR.ENDC + 'DECRYPTED: ' + COLOR.BOLD + bin_list_to_string(dec) + COLOR.ENDC)
 
     print(COLOR.OKBLUE + 'Encryption in gamma mode' + COLOR.ENDC)
     enc = stb.encrypt_in_gamma_mode(string_to_bin_list(data), string_to_bin_list(KEY), s)

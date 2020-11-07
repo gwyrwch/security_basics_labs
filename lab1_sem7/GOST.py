@@ -1,6 +1,3 @@
-from collections import Counter
-
-
 class GOST:
     def __init__(self):
         self.S = [
@@ -103,7 +100,7 @@ class GOST:
     def transform(self, l_prev, r_prev, k_i):
         r_i = l_prev
 
-        l_i = [0 for i in range(32)]
+        l_i = [0 for _ in range(32)]
         frk = self.f(l_prev, k_i)
         for i in range(32):
             l_i[i] = r_prev[i] ^ frk[i]
@@ -111,14 +108,10 @@ class GOST:
         return l_i, r_i
 
     def f(self, l, k_i):
-        # print(l, k_i)
         l_int = int("".join(str(i) for i in l), 2)
         k_int = int("".join(str(i) for i in k_i), 2)
         l_k_mod = (l_int + k_int) % (2 ** 32)
         res = self.add_zeros([int(i) for i in "{0:b}".format(l_k_mod)], 32)
-        # res = [0 for _ in range(32)]
-        # for i in range(32):
-        #     res[i] = l[i] ^ k_i[i]
 
         seq = []
         for i in range(0, 32, 4):
@@ -126,13 +119,9 @@ class GOST:
 
         res = []
         for i in range(8):
-            # print(seq[i])
             s_int = int("".join(str(i) for i in seq[i]), 2)
-            # print(s_int)
             s_int = self.S[i][s_int]
-            # print(s_int)
             seq[i] = self.add_zeros([int(i) for i in "{0:b}".format(s_int)], 4)
-            # print(seq[i])
             res += seq[i]
 
         res = res[11:] + res[:11]
@@ -159,12 +148,6 @@ class GOST:
         return res[1:]
 
     def decrypt_64(self, data, keys):
-        """
-        :param data: 64 bit binary string // in a list??
-        :param keys: 56 bit key
-        :return: encrypted 64 bit string
-        """
-
         a_i = data[:32]
         b_i = data[32:]
 

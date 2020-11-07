@@ -1,6 +1,3 @@
-from collections import Counter
-
-
 class STB:
     def __init__(self):
         self.H = [
