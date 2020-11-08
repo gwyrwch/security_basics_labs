@@ -47,11 +47,11 @@ unsigned to_int(string s) {
 
 
 unsigned funF(unsigned x, unsigned y, unsigned z) {
-	return (x & y) | (~x & z);
+	return (x & y) | ((~x) & z);
 }
 
 unsigned funG(unsigned x, unsigned y, unsigned z) {
-	return (x & z) | (~z & y);
+	return (x & z) | ((~z) & y);
 }
 
 unsigned funH(unsigned x, unsigned y, unsigned z) {
@@ -59,14 +59,13 @@ unsigned funH(unsigned x, unsigned y, unsigned z) {
 }
 
 unsigned funI(unsigned x, unsigned y, unsigned z) {
-	return y ^ (~z | x);
+	return y ^ ((~z) | x);
 }
 
 unsigned A = 0x67452301;
 unsigned B = 0xEFCDAB89;
 unsigned C = 0x98BADCFE;
 unsigned D = 0x10325476;
-unsigned t[64];
 
 
 vector<vector<int>> S = {
@@ -95,9 +94,11 @@ vector<string> break_into(const string& s, int block_size) {
 }
 
 unsigned shift(unsigned x, int c) {
-	return (x >> c) | (x << (32 - c));
+	// return (x >> c) | (x << (32 -2 c));
 	return (x << c)  | (x >> (32 - c));
 }
+
+unsigned t[64];
 
 int main() {
 	srand(time(0));
@@ -124,12 +125,21 @@ int main() {
 		
 		vector<string> x = break_into(block, 32);
 
+		for (auto& w : x) {
+			reverse(w.begin(), w.end());
+
+			for (int i = 0; i < w.size(); i += 8) {
+				reverse(w.begin() + i, w.begin() + i + 8);
+			}
+		}
+
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 16; j++) {
 				unsigned index = i * 16 + j;
 				unsigned x_index;
 				unsigned func;
 				
+				// cout << b0 << ' ' << c0 << ' ' << d0 << endl;
 				switch(i) {
 					case 0:
 						x_index = index;
@@ -148,8 +158,10 @@ int main() {
 						func = funI(b0, c0, d0);
 						break;
 				}
-
+				
 				func += a0 + t[index] + to_int(x[x_index]);
+				
+
 				a0 = d0;
 				d0 = c0;
 				c0 = b0;
@@ -163,6 +175,9 @@ int main() {
 		D += d0;
 	}
 
-	cout << std::hex << A << B << C << D;
+	printf("%08x", htonl(A));
+	printf("%08x", htonl(B));
+	printf("%08x", htonl(C));
+	printf("%08x", htonl(D));
 	return 0;
 }  
