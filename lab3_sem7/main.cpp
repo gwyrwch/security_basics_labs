@@ -153,7 +153,6 @@ string decrypt(const vector<int> &enc_nums, int d, int n, int bin_size) {
 	}
 	ans.pop_back();
 	reverse(ans.begin(), ans.end());
-	cout << " ans = " << ans << endl;
 	return ans;
 }
 
@@ -214,6 +213,7 @@ int main() {
 	vector<int> enc_nums = encrypt(blocks, e, n);
 
 	string dec = decrypt(enc_nums, d, n, len);
+	cout << " ans = " << dec << endl;
 
 	return 0;
 }  

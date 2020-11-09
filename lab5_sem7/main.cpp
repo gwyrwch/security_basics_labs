@@ -105,6 +105,7 @@ int main() {
 	freopen("input.txt", "r", stdin);
 
 	string s; cin >> s;
+	cout << "input: " << "\'" << s << "\'" << endl;
 	int l = s.size();
 
 
@@ -175,9 +176,11 @@ int main() {
 		D += d0;
 	}
 
+	cout << "md5: ";
 	printf("%08x", htonl(A));
 	printf("%08x", htonl(B));
 	printf("%08x", htonl(C));
 	printf("%08x", htonl(D));
+	cout << endl;
 	return 0;
 }  
