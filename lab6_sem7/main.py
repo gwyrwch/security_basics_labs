@@ -9,7 +9,7 @@ def prepare_hash(bytes_object):
 
 if __name__ == '__main__':
     hash_value_sign = prepare_hash(b'001ab01')
-    hash_value_test = prepare_hash(b'001a3b01')
+    hash_value_test = prepare_hash(b'001sab01')
 
     print('HASH value of signature is {}'.format('\033[94m' + hash_value_sign + '\033[0m'))
     print('HASH value of test is {}'.format('\033[94m' + hash_value_test + '\033[0m'))

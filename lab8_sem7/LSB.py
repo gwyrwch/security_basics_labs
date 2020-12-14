@@ -25,7 +25,7 @@ def encode(img_path, res_path, text):
     while len(binary_text) < len(rgb_pixels) * 3:
         binary_text += '0'
 
-    print(len(binary_text), len(rgb_pixels))
+    # print(len(binary_text), len(rgb_pixels))
 
     cur_bit = 0
     i = 0

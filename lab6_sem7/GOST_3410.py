@@ -63,7 +63,6 @@ def public_key(curve, private):
     return curve.exp(private)
 
 
-
 def private_key():
     return int(os.urandom(128).hex(), 16)
 
@@ -83,6 +82,7 @@ class Gost3410:
             e = 1
 
         s = 0
+        r = 0
         while s == 0:
             k = int(os.urandom(64).hex(), 16) % (q - 1) + 1
             r, _ = curve.exp(k)
@@ -93,13 +93,12 @@ class Gost3410:
         return r, s
 
     def verify(self, curve, pub, z, signature):
-        # z int
+        # z int -- hash
         # signature (int, int) r, s
         # pub (x, y)
 
         r, s = signature
         q = curve.q
-        p = curve.p
 
         if r <= 0 or r >= q or s <= 0 or s >= q:
             return False

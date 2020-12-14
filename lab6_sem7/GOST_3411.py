@@ -1,4 +1,3 @@
-
 P = [
     252, 238, 221,  17, 207, 110,  49,  22, 251, 196, 250,
     218,  35, 197,   4,  77, 233, 119, 240, 219, 147,  46,
@@ -62,8 +61,6 @@ C = [
 ]
 
 
-
-
 def sum_two(a, b):
     carry = 0
     res = bytearray(64)
@@ -87,6 +84,7 @@ def to_bytearray(n):
         res[i] = n % 256
         n //= 256
     return res
+
 
 def g(n, hash, message):
     result = E(LPS(xor_two(hash[:8], to_bytearray(n)) + hash[8:]), message)
@@ -145,7 +143,6 @@ class Gost3411:
         data += b'\x01'
         zeros_to_add = (BYTES_IN_BLOCK - len(data) % BYTES_IN_BLOCK) % BYTES_IN_BLOCK
         data += b'\x00' * zeros_to_add
-
 
         H = g(n, H, data[-BYTES_IN_BLOCK:])
         SUM = sum_two(SUM, data[-BYTES_IN_BLOCK:])
